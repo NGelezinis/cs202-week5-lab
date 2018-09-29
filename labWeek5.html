@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Info Windows</title>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+    <style>
+      #template1 {display:none;}
+      #template2 {display:none;}
+    </style>
+  </head>
+  <body>
+    <button type="button" id = "template2">submit</button>
+    <div id = "template1">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">#</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Plate:</th>
+          <td id = "tablePlate">Mark</td>
+        </tr>
+        <tr>
+          <th scope="row">Color:</th>
+          <td id = "tableColor">Mark</td>
+        </tr>
+        <tr>
+          <th scope="row">Inventory Number:</th>
+          <td id = "tableNum1">Mark</td>
+        </tr>
+        <tr>
+          <th scope="row">Make:</th>
+          <td id = "tableMake">Mark</td>
+        </tr>
+        <tr>
+          <th scope="row">Model:</th>
+          <td id = "tableModel"></td>
+        </tr>
+        <tr>
+          <th scope="row">State:</th>
+          <td id = "tableState">Mark</td>
+        </tr>
+        <tr>
+          <th scope="row">Style:</th>
+          <td id = "tableStyle">Mark</td>
+        </tr>
+        <tr>
+          <th scope="row">Tow Date:</th>
+          <td id = "tableDate">Mark</td>
+        </tr>
+        <tr>
+          <th scope="row">Tow Factory Phone:</th>
+          <td id = "tablePhone">Mark</td>
+        </tr>
+        <tr>
+          <th scope="row">Towed to Address:</th>
+          <td id = "tableAddr">Mark</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+    <form>
+      <input id="make" name="make" type="text" placeholder=" 4 or less letter make">
+      <input id="color" name="color" type="text" placeholder=" 3 letter color">
+      <input id="plate" name="plate" type="text" placeholder="vehicle plate">
+      <input id="state" name="state" type="text" placeholder="2 letter state">
+
+      <button type="button" id = "buttonStats">submit</button>
+
+
+    </form>  
+
+
+    <div id="map"></div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  
+
+
+
+    <script>
+
+      function initStats() {
+
+        var endpoint = "https://data.cityofchicago.org/resource/rp42-fxjt.json";
+
+        var url = endpoint;
+        var first = 0;
+        
+        if ($("#state").val() != ""){
+          url += "?state=" + $("#state").val();
+          first++;
+        }
+        if ($("#make").val() != ""){
+          if(first == 0){
+            url += "?make=" + $("#make").val();
+            first++;
+          }
+          else{
+            url += "&make=" + $("#make").val();
+          }
+        }
+
+        if ($("#color").val() != ""){
+          if(first == 0){
+            url += "?color=" + $("#color").val();
+            first++;
+          }
+          else{
+            url += "&color=" + $("#color").val();
+          }
+        }
+        if ($("#plate").val() != ""){
+          if(first == 0){
+            url += "?plate=" + $("#plate").val();
+            first++;
+          }
+          else{
+            url += "&plate=" + $("#plate").val();
+          }
+        }
+
+
+        $.ajax({
+              url: url,
+              type: "GET",
+              data: {
+                "$limit" : 50
+              }
+          }).done(function(data) {
+            //alert("Retrieved " + data.length + " records from the dataset!");
+            //console.log(data);
+
+
+            $.each(data, function(i,v) {
+              console.log(v);
+              var clone = $("#template1").clone();
+              clone.attr("id",v.plate);
+              clone.find("#tablePlate").text(v.plate);
+              clone.find("#tableColor").text(v.color);
+              clone.find("#tableNum1").text(v.inventory_number);
+              clone.find("#tableMake").text(v.make);
+              if(v.model != ""){
+                clone.find("#tableModel").text(v.model);
+              }
+              clone.find("#tableState").text(v.state);
+              clone.find("#tableStyle").text(v.style);
+              clone.find("#tableDate").text(v.tow_date);
+              clone.find("#tablePhone").text(v.tow_facility_phone);
+              clone.find("#tableAddr").text(v.towed_to_address);
+              $("body").append(clone);
+              var clone2 = $("#template2").clone();
+              clone2.attr("id",v.plate);
+              $("body").append(clone2);
+                
+              marker.addListener('click', function() {
+                infowindow.open(map, marker);
+              });
+            });
+
+          });
+
+
+
+
+        
+
+        
+
+      }
+    </script>
+
+
+  <script>
+  
+      $("#buttonStats").on("click", initStats)
+
+      //$("button").on("click", initMap)
+
+  </script>
+
+
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA23qcXuGK77p1Smzt7qKsJsMF61TMvDaY">
+    </script>
+  </body>
+</html>
